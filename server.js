@@ -4,7 +4,9 @@ var express = require('express');
 var routes = require('./app/routes/index.js');
 var mongoose = require('mongoose');
 var passport = require('passport');
+var strftime = require("strftime");
 var session = require('express-session');
+var moment = require("moment");
 
 var app = express();
 require('dotenv').load();
@@ -26,6 +28,33 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 routes(app, passport);
+
+app.get('/:date', function(req, res) {
+	if (/^\d{8,}$/.test(req.params.date)) {
+		var date = moment(req.params.date, "X");
+		
+	}
+	else {
+		var date = moment(req.params.date, "MMMM D YYYY");
+	}
+	if (date.isValid()) {
+		res.send({
+			"unix": date.format("X"),
+			"natural": date.format("MMMM D, YYYY")
+		});
+		
+	}
+	else {
+		res.send({
+			"unix": null,
+			"natural": null
+		});
+	}
+});
+
+app.get('/', function(req, res) {
+	res.send("This is the homepage!");
+})
 
 var port = process.env.PORT || 8080;
 app.listen(port,  function () {
